@@ -1,99 +1,224 @@
 #include "../include/parser.h"
+#include "../include/lexer.h"
 #include <iostream>
+#include <vector>
+#include <string>
 using namespace std;
 
-Parser::Parser(const vector<Token>& toks) : tokens(toks), pos(0) {}
+// ✅ Global definitions (only one copy)
+vector<Token> tokens;
+int currentIndex = 0;
 
-Token Parser::peek() {
-    return (pos < tokens.size()) ? tokens[pos] : Token{UNKNOWN, ""};
+// ✅ Safely get current token
+Token currentToken() {
+    if (currentIndex < (int)tokens.size()) {
+        return tokens[currentIndex];
+    } else {
+        Token t;
+        t.value = "";
+        t.type = UNKNOWN;
+        return t;
+    }
 }
 
-Token Parser::get() {
-    return (pos < tokens.size()) ? tokens[pos++] : Token{UNKNOWN, ""};
+// ✅ Move to next token
+void nextToken() {
+    if (currentIndex < (int)tokens.size()) {
+        currentIndex++;
+    }
 }
 
-void Parser::error(const string& msg) {
+
+// Utility checks
+bool isIdentifier(const Token &t) {
+    return t.type == IDENTIFIER;
+}
+
+bool isNumber(const Token &t) {
+    return t.type == NUMBER;
+}
+
+bool isOperator(const Token &t) {
+    return t.type == OPERATOR;
+}
+
+bool isKeyword(const Token &t, const string &word) {
+    return t.type == KEYWORD && t.value == word;
+}
+
+// Simple error function
+void error(const string &msg) {
     cout << "[Syntax Error] " << msg << endl;
-    exit(1);
 }
 
-void Parser::parseProgram() {
-    cout << "Parsing Program...\n";
-    while (pos < tokens.size()) {
-        parseStatement();
+// Forward declaration
+bool parseExpression();
+
+// Parse parenthesis and arithmetic expressions recursively
+bool parseExpression() {
+    Token t = currentToken();
+
+    // Case 1: Expression starts with '('
+    if (t.value == "(") {
+        nextToken(); // consume '('
+        if (!parseExpression()) return false;
+        if (currentToken().value != ")") {
+            error("Missing closing parenthesis");
+            return false;
+        }
+        nextToken(); // consume ')'
     }
-    cout << "Parsing completed successfully!\n";
-}
-
-void Parser::parseStatement() {
-    Token t = peek();
-    if (t.type == KEYWORD && t.value == "let")
-        parseDeclaration();
-    else if (t.type == IDENTIFIER)
-        parseAssignment();
-    else if (t.type == KEYWORD && t.value == "print")
-        parsePrint();
-    else if (t.type == KEYWORD && t.value == "if")
-        parseIf();
-    else
-        error("Unexpected token: " + t.value);
-}
-
-void Parser::parseDeclaration() {
-    get(); // 'let'
-    Token id = get();
-    if (id.type != IDENTIFIER) error("Expected variable name after 'let'");
-    Token eq = get();
-    if (eq.value != "=") error("Expected '=' after variable name");
-    parseExpression();
-    Token semi = get();
-    if (semi.value != ";") error("Missing ';' at end of declaration");
-}
-
-void Parser::parseAssignment() {
-    get(); // identifier
-    Token eq = get();
-    if (eq.value != "=") error("Expected '=' in assignment");
-    parseExpression();
-    Token semi = get();
-    if (semi.value != ";") error("Missing ';' in assignment");
-}
-
-void Parser::parsePrint() {
-    get(); // 'print'
-    Token lpar = get();
-    if (lpar.value != "(") error("Expected '(' after 'print'");
-    parseExpression();
-    Token rpar = get();
-    if (rpar.value != ")") error("Expected ')' after expression");
-    Token semi = get();
-    if (semi.value != ";") error("Missing ';' after print statement");
-}
-
-void Parser::parseIf() {
-    get(); // 'if'
-    Token lpar = get();
-    if (lpar.value != "(") error("Expected '(' after 'if'");
-    parseExpression();
-    Token rpar = get();
-    if (rpar.value != ")") error("Expected ')' after condition");
-    Token lbrace = get();
-    if (lbrace.value != "{") error("Expected '{' after if condition");
-
-    while (peek().value != "}") parseStatement();
-    get(); // consume '}'
-}
-
-void Parser::parseExpression() {
-    Token t = get();
-    if (t.type != IDENTIFIER && t.type != NUMBER)
-        error("Expected identifier or number in expression");
-
-    while (peek().value == "+" || peek().value == "-" || peek().value == "*" ||
-           peek().value == "/" || peek().value == "<" || peek().value == ">") {
-        get(); // operator
-        Token nxt = get();
-        if (nxt.type != IDENTIFIER && nxt.type != NUMBER)
-            error("Invalid operand in expression");
+    // Case 2: Identifier or number
+    else if (isIdentifier(t) || isNumber(t)) {
+        nextToken();
     }
+    else {
+        error("Invalid operand in expression");
+        return false;
+    }
+
+    // If there's an operator, recursively parse next expression
+    if (isOperator(currentToken())) {
+        nextToken();
+        if (!parseExpression()) return false;
+    }
+
+    return true;
+}
+
+// Parse assignment statements
+bool parseAssignment() {
+    Token id = currentToken();
+    if (!isIdentifier(id)) {
+        error("Expected identifier in assignment");
+        return false;
+    }
+
+    nextToken();
+    if (currentToken().value != "=") {
+        error("Expected '=' in assignment");
+        return false;
+    }
+
+    nextToken(); // consume '='
+    if (!parseExpression()) return false;
+
+    if (currentToken().value != ";") {
+        error("Missing ';' after assignment");
+        return false;
+    }
+
+    nextToken(); // consume ';'
+    return true;
+}
+
+// Parse 'let' declarations
+bool parseDeclaration() {
+    nextToken(); // consume 'let'
+    if (!parseAssignment()) return false;
+    return true;
+}
+
+// Parse print statement
+bool parsePrint() {
+    nextToken(); // consume 'print'
+    if (currentToken().value != "(") {
+        error("Expected '(' after print");
+        return false;
+    }
+
+    nextToken(); // consume '('
+    if (!isIdentifier(currentToken())) {
+        error("Expected identifier inside print()");
+        return false;
+    }
+
+    nextToken(); // consume identifier
+    if (currentToken().value != ")") {
+        error("Expected ')' after identifier in print()");
+        return false;
+    }
+
+    nextToken(); // consume ')'
+    if (currentToken().value != ";") {
+        error("Missing ';' after print statement");
+        return false;
+    }
+
+    nextToken(); // consume ';'
+    return true;
+}
+
+// Parse if statement
+bool parseIf() {
+    nextToken(); // consume 'if'
+    if (currentToken().value != "(") {
+        error("Expected '(' after if");
+        return false;
+    }
+
+    nextToken(); // consume '('
+    if (!parseExpression()) return false;
+
+    if (currentToken().value != ")") {
+        error("Expected ')' after condition");
+        return false;
+    }
+
+    nextToken(); // consume ')'
+    if (currentToken().value != "{") {
+        error("Expected '{' to start if block");
+        return false;
+    }
+
+    nextToken(); // consume '{'
+    while (currentToken().value != "}" && currentToken().type != UNKNOWN) {
+        if (isKeyword(currentToken(), "let")) {
+            if (!parseDeclaration()) return false;
+        } else if (isKeyword(currentToken(), "print")) {
+            if (!parsePrint()) return false;
+        } else {
+            error("Invalid statement inside if block");
+            return false;
+        }
+    }
+
+    if (currentToken().value != "}") {
+        error("Expected '}' at end of if block");
+        return false;
+    }
+
+    nextToken(); // consume '}'
+    return true;
+}
+
+// Parse the entire program
+bool parseProgram() {
+    cout << "Parsing Program..." << endl;
+
+    currentIndex = 0;
+
+    while (currentIndex < (int)tokens.size()) {
+        Token t = currentToken();
+
+        if (isKeyword(t, "let")) {
+            if (!parseDeclaration()) return false;
+        } 
+        else if (isKeyword(t, "if")) {
+            if (!parseIf()) return false;
+        } 
+        else if (isKeyword(t, "print")) {
+            if (!parsePrint()) return false;
+        } 
+        else if (t.type == UNKNOWN) {
+            break;
+        } 
+        else {
+            error("Unexpected token: " + t.value);
+            return false;
+        }
+    }
+
+    cout << "Parsing completed successfully!" << endl;
+    return true;
 }

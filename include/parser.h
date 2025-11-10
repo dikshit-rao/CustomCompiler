@@ -1,31 +1,19 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include <vector>
 #include <string>
+#include <vector>
 #include "lexer.h"
 using namespace std;
 
-class Parser {
-private:
-    vector<Token> tokens;
-    size_t pos;
+// ✅ Declare global tokens vector (so main.cpp can see it)
+extern vector<Token> tokens;
 
-    Token peek();
-    Token get();
-    void error(const string& msg);
-
-public:
-    Parser(const vector<Token>& toks);
-    void parseProgram();
-
-private:
-    void parseStatement();
-    void parseDeclaration();
-    void parseAssignment();
-    void parsePrint();
-    void parseIf();
-    void parseExpression();
-};
+bool parseProgram();
+bool parseDeclaration();
+bool parseAssignment();
+bool parseExpression();
+bool parseIf();
+bool parsePrint();
 
 #endif

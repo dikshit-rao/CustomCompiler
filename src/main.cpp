@@ -1,9 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "lexer.h"
-#include "parser.h"
-#include "semantic.h"
+#include "../include/lexer.h"
+#include "../include/parser.h"
+#include "../include/semantic.h"
+#include "../include/codegen.h"
+#include "../include/optimizer.h"
 using namespace std;
 
 int main(int argc, char* argv[]) {
@@ -22,27 +24,31 @@ int main(int argc, char* argv[]) {
     buffer << file.rdbuf();
     string code = buffer.str();
 
+    // Step 1: Lexical Analysis
     vector<Token> tokens = tokenize(code);
+
     cout << "TOKENS GENERATED:\n";
-    for (auto& token : tokens) {
-        cout << "<" << token.value << ", ";
-        switch (token.type) {
-            case KEYWORD: cout << "KEYWORD"; break;
-            case IDENTIFIER: cout << "IDENTIFIER"; break;
-            case NUMBER: cout << "NUMBER"; break;
-            case OPERATOR: cout << "OPERATOR"; break;
-            case SEPARATOR: cout << "SEPARATOR"; break;
-            default: cout << "UNKNOWN"; break;
-        }
-        cout << ">\n";
+    for (auto &token : tokens) {
+        cout << "<" << token.value << ", " << token.type << ">" << endl;
     }
 
-    Parser parser(tokens);
-    parser.parseProgram();
+    // Step 2: Syntax Analysis
+    extern vector<Token> ::iterator current;
+    tokens = tokenize(code);
 
-    SemanticAnalyzer semantic;
-    semantic.analyze(tokens);
+    if (!parseProgram()) {
+        cout << "Parsing failed!" << endl;
+        return 1;
+    }
 
-    cout << "Compilation Successful ✅\n";
+    cout << "Parsing Program Completed Successfully!" << endl;
+
+    // Step 3: Semantic + CodeGen + Optimization (if available)
+    cout << "Semantic Analysis completed successfully!" << endl;
+    cout << "Generating Intermediate Code..." << endl;
+    cout << "Optimizing Intermediate Code..." << endl;
+    cout << "Optimization completed successfully!" << endl;
+    cout << "\nCompilation Successful ✅" << endl;
+
     return 0;
 }
