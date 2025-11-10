@@ -21,9 +21,11 @@ CustomCompiler/
 ├── Makefile → Build script
 └── compiler.exe
 
-## 💻 Example Program
+🧠 Example Program
+---
 
 **File:** `test/test1.dik`
+
 ```dik
 let a = 5;
 let b = a + 10;
@@ -32,7 +34,10 @@ if (b > 10) {
 }
 
 
-## 👑 Author
+👑 Author
 Name: Dikshit Rao
 Institution: MNIT Jaipur
 Branch: Computer Science & Engineering
+
+yaml
+Copy code
