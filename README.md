@@ -32,12 +32,9 @@ let b = a + 10;
 if (b > 10) {
     print(b);
 }
-
-
-👑 Author
+ ``` 
+## 👑 Author
 Name: Dikshit Rao
 Institution: MNIT Jaipur
 Branch: Computer Science & Engineering
 
-yaml
-Copy code
