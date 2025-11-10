@@ -31,28 +31,8 @@ if (b > 10) {
     print(b);
 }
 
-mingw32-make clean && mingw32-make
-./compiler test/test1.dik
-🧩 Sample Output
-Parsing completed successfully!
-Semantic Analysis completed successfully!
-Generating Intermediate Code...
-Optimizing Intermediate Code...
 
-Final Optimized Code:
-t1 = 5
-a = t1
-b = t1 + 10
-PRINT b
-Compilation Successful ✅
-🧠 Built With
-Tool	Purpose
-C++17	Core language
-Makefile	Build automation
-GitHub	Version control
-MinGW	C++ compiler
-
-👑 Author
+## 👑 Author
 Name: Dikshit Rao
 Institution: MNIT Jaipur
 Branch: Computer Science & Engineering
