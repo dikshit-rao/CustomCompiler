@@ -1,8 +1,9 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "../include/lexer.h"
-#include "../include/parser.h"
+#include "lexer.h"
+#include "parser.h"
+#include "semantic.h"
 using namespace std;
 
 int main(int argc, char* argv[]) {
@@ -22,7 +23,6 @@ int main(int argc, char* argv[]) {
     string code = buffer.str();
 
     vector<Token> tokens = tokenize(code);
-
     cout << "TOKENS GENERATED:\n";
     for (auto& token : tokens) {
         cout << "<" << token.value << ", ";
@@ -32,8 +32,7 @@ int main(int argc, char* argv[]) {
             case NUMBER: cout << "NUMBER"; break;
             case OPERATOR: cout << "OPERATOR"; break;
             case SEPARATOR: cout << "SEPARATOR"; break;
-            case COMMENT: cout << "COMMENT"; break;
-            case UNKNOWN: cout << "UNKNOWN"; break;
+            default: cout << "UNKNOWN"; break;
         }
         cout << ">\n";
     }
@@ -41,5 +40,9 @@ int main(int argc, char* argv[]) {
     Parser parser(tokens);
     parser.parseProgram();
 
+    SemanticAnalyzer semantic;
+    semantic.analyze(tokens);
+
+    cout << "Compilation Successful ✅\n";
     return 0;
 }
