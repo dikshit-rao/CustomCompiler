@@ -1,0 +1,6 @@
+// Program in DikLang
+let a = 10;
+let b = a + 5;
+if (b > 10) {
+    print(b);
+}
