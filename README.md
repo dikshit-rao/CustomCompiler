@@ -21,11 +21,6 @@ CustomCompiler/
 ├── Makefile → Build script
 └── compiler.exe
 
-yaml
-Copy code
-
----
-
 ## 💻 Example Program
 
 **File:** `test/test1.dik`
@@ -35,15 +30,10 @@ let b = a + 10;
 if (b > 10) {
     print(b);
 }
-Run:
 
-bash
-Copy code
 mingw32-make clean && mingw32-make
 ./compiler test/test1.dik
 🧩 Sample Output
-css
-Copy code
 Parsing completed successfully!
 Semantic Analysis completed successfully!
 Generating Intermediate Code...
