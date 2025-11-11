@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
     buffer << file.rdbuf();
     string code = buffer.str();
 
-    // Step 1: Lexical Analysis
+
     vector<Token> tokens = tokenize(code);
 
     cout << "TOKENS GENERATED:\n";
@@ -32,7 +32,6 @@ int main(int argc, char* argv[]) {
         cout << "<" << token.value << ", " << token.type << ">" << endl;
     }
 
-    // Step 2: Syntax Analysis
     extern vector<Token> ::iterator current;
     tokens = tokenize(code);
 
@@ -43,7 +42,7 @@ int main(int argc, char* argv[]) {
 
     cout << "Parsing Program Completed Successfully!" << endl;
 
-    // Step 3: Semantic + CodeGen + Optimization (if available)
+
     cout << "Semantic Analysis completed successfully!" << endl;
     cout << "Generating Intermediate Code..." << endl;
     cout << "Optimizing Intermediate Code..." << endl;

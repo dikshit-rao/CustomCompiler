@@ -9,10 +9,10 @@ using namespace std;
 
 class CodeGenerator {
 private:
-    vector<string> code;  // stores generated IR code
-    int tempCount;        // for creating temporary variables
+    vector<string> code;  
+    int tempCount;   
 
-    string newTemp();     // generates t1, t2, t3, etc.
+    string newTemp();
 
 public:
     CodeGenerator();

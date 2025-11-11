@@ -6,7 +6,6 @@
 #include "lexer.h"
 using namespace std;
 
-// ✅ Declare global tokens vector (so main.cpp can see it)
 extern vector<Token> tokens;
 
 bool parseProgram();

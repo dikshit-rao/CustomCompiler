@@ -10,7 +10,7 @@ using namespace std;
 
 class SemanticAnalyzer {
 private:
-    unordered_map<string, bool> symbolTable; // stores declared variables
+    unordered_map<string, bool> symbolTable;
 
 public:
     void analyze(const vector<Token>& tokens);

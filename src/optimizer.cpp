@@ -7,16 +7,15 @@ vector<string> Optimizer::optimize(const vector<string>& code) {
     cout << "\nOptimizing Intermediate Code...\n";
 
     vector<string> optimized;
-    unordered_map<string, string> computed; // store results like "5 + 3" -> "8"
+    unordered_map<string, string> computed;
 
     for (string line : code) {
-        // Constant folding
+
         stringstream ss(line);
         string t, eq, a, op, b;
         ss >> t >> eq >> a;
 
-        if (ss >> op >> b) { // if expression exists (a + b)
-            // check if both are numbers
+        if (ss >> op >> b) { 
             bool aNum = all_of(a.begin(), a.end(), ::isdigit);
             bool bNum = all_of(b.begin(), b.end(), ::isdigit);
 
@@ -33,7 +32,7 @@ vector<string> Optimizer::optimize(const vector<string>& code) {
                 continue;
             }
 
-            // Reuse previous computed expressions
+
             string key = a + " " + op + " " + b;
             if (computed.count(key)) {
                 optimized.push_back(t + " = " + computed[key]);
@@ -43,7 +42,7 @@ vector<string> Optimizer::optimize(const vector<string>& code) {
             }
         }
 
-        // Avoid duplicate temp assignments
+
         if (!optimized.empty() && optimized.back() == line)
             continue;
 

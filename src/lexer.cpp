@@ -18,7 +18,6 @@ vector<Token> tokenize(const string& code) {
             continue;
         }
 
-        // Identifiers / Keywords
         if (isalpha(code[i])) {
             string word;
             while (i < code.size() && (isalnum(code[i]) || code[i] == '_')) {
@@ -39,21 +38,21 @@ vector<Token> tokenize(const string& code) {
             tokens.push_back({NUMBER, num});
         }
 
-        // Operators
+
         else if (operators.count(code[i])) {
             string op(1, code[i]);
             tokens.push_back({OPERATOR, op});
             i++;
         }
 
-        // Separators
+
         else if (separators.count(code[i])) {
             string sep(1, code[i]);
             tokens.push_back({SEPARATOR, sep});
             i++;
         }
 
-        // Unknowns
+
         else {
             string unk(1, code[i]);
             tokens.push_back({UNKNOWN, unk});

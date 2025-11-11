@@ -5,11 +5,11 @@
 #include <string>
 using namespace std;
 
-// ✅ Global definitions (only one copy)
+
 vector<Token> tokens;
 int currentIndex = 0;
 
-// ✅ Safely get current token
+
 Token currentToken() {
     if (currentIndex < (int)tokens.size()) {
         return tokens[currentIndex];
@@ -21,7 +21,7 @@ Token currentToken() {
     }
 }
 
-// ✅ Move to next token
+
 void nextToken() {
     if (currentIndex < (int)tokens.size()) {
         currentIndex++;
@@ -29,7 +29,7 @@ void nextToken() {
 }
 
 
-// Utility checks
+
 bool isIdentifier(const Token &t) {
     return t.type == IDENTIFIER;
 }
@@ -46,29 +46,29 @@ bool isKeyword(const Token &t, const string &word) {
     return t.type == KEYWORD && t.value == word;
 }
 
-// Simple error function
+
 void error(const string &msg) {
     cout << "[Syntax Error] " << msg << endl;
 }
 
-// Forward declaration
+
 bool parseExpression();
 
-// Parse parenthesis and arithmetic expressions recursively
+
 bool parseExpression() {
     Token t = currentToken();
 
-    // Case 1: Expression starts with '('
+
     if (t.value == "(") {
-        nextToken(); // consume '('
+        nextToken();
         if (!parseExpression()) return false;
         if (currentToken().value != ")") {
             error("Missing closing parenthesis");
             return false;
         }
-        nextToken(); // consume ')'
+        nextToken(); 
     }
-    // Case 2: Identifier or number
+
     else if (isIdentifier(t) || isNumber(t)) {
         nextToken();
     }
@@ -77,7 +77,7 @@ bool parseExpression() {
         return false;
     }
 
-    // If there's an operator, recursively parse next expression
+
     if (isOperator(currentToken())) {
         nextToken();
         if (!parseExpression()) return false;
@@ -86,7 +86,7 @@ bool parseExpression() {
     return true;
 }
 
-// Parse assignment statements
+
 bool parseAssignment() {
     Token id = currentToken();
     if (!isIdentifier(id)) {
@@ -100,7 +100,7 @@ bool parseAssignment() {
         return false;
     }
 
-    nextToken(); // consume '='
+    nextToken();
     if (!parseExpression()) return false;
 
     if (currentToken().value != ";") {
@@ -108,56 +108,55 @@ bool parseAssignment() {
         return false;
     }
 
-    nextToken(); // consume ';'
+    nextToken(); 
     return true;
 }
 
-// Parse 'let' declarations
+
 bool parseDeclaration() {
-    nextToken(); // consume 'let'
+    nextToken(); 
     if (!parseAssignment()) return false;
     return true;
 }
 
-// Parse print statement
 bool parsePrint() {
-    nextToken(); // consume 'print'
+    nextToken();
     if (currentToken().value != "(") {
         error("Expected '(' after print");
         return false;
     }
 
-    nextToken(); // consume '('
+    nextToken(); 
     if (!isIdentifier(currentToken())) {
         error("Expected identifier inside print()");
         return false;
     }
 
-    nextToken(); // consume identifier
+    nextToken();
     if (currentToken().value != ")") {
         error("Expected ')' after identifier in print()");
         return false;
     }
 
-    nextToken(); // consume ')'
+    nextToken();
     if (currentToken().value != ";") {
         error("Missing ';' after print statement");
         return false;
     }
 
-    nextToken(); // consume ';'
+    nextToken(); 
     return true;
 }
 
-// Parse if statement
+
 bool parseIf() {
-    nextToken(); // consume 'if'
+    nextToken(); 
     if (currentToken().value != "(") {
         error("Expected '(' after if");
         return false;
     }
 
-    nextToken(); // consume '('
+    nextToken(); 
     if (!parseExpression()) return false;
 
     if (currentToken().value != ")") {
@@ -165,13 +164,13 @@ bool parseIf() {
         return false;
     }
 
-    nextToken(); // consume ')'
+    nextToken(); 
     if (currentToken().value != "{") {
         error("Expected '{' to start if block");
         return false;
     }
 
-    nextToken(); // consume '{'
+    nextToken(); 
     while (currentToken().value != "}" && currentToken().type != UNKNOWN) {
         if (isKeyword(currentToken(), "let")) {
             if (!parseDeclaration()) return false;
@@ -192,7 +191,7 @@ bool parseIf() {
     return true;
 }
 
-// Parse the entire program
+
 bool parseProgram() {
     cout << "Parsing Program..." << endl;
 
