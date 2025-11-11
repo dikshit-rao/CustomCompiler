@@ -5,8 +5,8 @@
 #include <string>
 using namespace std;
 
+extern vector<Token> tokens;
 
-vector<Token> tokens;
 int currentIndex = 0;
 
 

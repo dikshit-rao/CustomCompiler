@@ -1,21 +1,19 @@
 #ifndef CODEGEN_H
 #define CODEGEN_H
 
+#include "lexer.h"
 #include <vector>
 #include <string>
 #include <iostream>
-#include "lexer.h"
 using namespace std;
 
 class CodeGenerator {
-private:
-    vector<string> code;  
-    int tempCount;   
-
-    string newTemp();
+    int tempCount;
+    vector<string> code;
 
 public:
     CodeGenerator();
+    string newTemp();
     void generate(const vector<Token>& tokens);
     void printCode();
 };

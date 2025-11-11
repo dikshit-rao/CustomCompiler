@@ -1,37 +1,52 @@
 #include "../include/semantic.h"
+#include "../include/lexer.h"
 #include <iostream>
+#include <unordered_set>
+#include <vector>
 using namespace std;
 
-void SemanticAnalyzer::analyze(const vector<Token>& tokens) {
-    cout << "Performing Semantic Analysis...\n";
+// Use the same global tokens vector declared in parser.cpp
+extern vector<Token> tokens;
 
-    for (size_t i = 0; i < tokens.size(); ++i) {
-        const Token& t = tokens[i];
+// Symbol table to store declared variable names
+unordered_set<string> declaredVars;
 
-      
+bool performSemanticAnalysis() {
+    declaredVars.clear();
+    bool success = true;
+
+    for (size_t i = 0; i < tokens.size(); i++) {
+        Token t = tokens[i];
+
+        // Handle declarations
         if (t.type == KEYWORD && t.value == "let") {
             if (i + 1 < tokens.size() && tokens[i + 1].type == IDENTIFIER) {
-                string varName = tokens[i + 1].value;
-                if (symbolTable.count(varName)) {
-                    cout << "[Semantic Error] Variable '" << varName << "' redeclared.\n";
-                    exit(1);
+                string var = tokens[i + 1].value;
+
+                // Check if already declared
+                if (declaredVars.count(var)) {
+                    cout << "[Semantic Error] Variable '" << var << "' redeclared." << endl;
+                    success = false;
                 } else {
-                    symbolTable[varName] = true; 
+                    declaredVars.insert(var);
                 }
             }
         }
 
-       
+        // Handle identifier usages (not after 'let')
         if (t.type == IDENTIFIER) {
-           
-            if (i > 0 && tokens[i - 1].value == "let") continue;
-            
-            if (!symbolTable.count(t.value)) {
-                cout << "[Semantic Error] Variable '" << t.value << "' used before declaration.\n";
-                exit(1);
+            if (i > 0 && tokens[i - 1].value == "let") continue; // skip declaration
+            if (!declaredVars.count(t.value)) {
+                cout << "[Semantic Error] Variable '" << t.value << "' used before declaration." << endl;
+                success = false;
             }
         }
     }
 
-    cout << "Semantic Analysis completed successfully!\n";
+    if (success)
+        cout << "Semantic Analysis completed successfully!" << endl;
+    else
+        cout << "Semantic Analysis found errors." << endl;
+
+    return success;
 }

@@ -1,4 +1,6 @@
 #include "../include/codegen.h"
+#include "../include/lexer.h"
+
 #include <stack>
 
 CodeGenerator::CodeGenerator() : tempCount(0) {}
