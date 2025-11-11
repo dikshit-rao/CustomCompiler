@@ -34,7 +34,7 @@ if (b > 10) {
 }
  ``` 
 ## 👑 Author
-Name: Dikshit Rao
-Institution: MNIT Jaipur
-Branch: Computer Science & Engineering
+- Name: Dikshit Rao
+- Institution: MNIT Jaipur
+- Branch: Computer Science & Engineering
 
