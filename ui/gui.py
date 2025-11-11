@@ -144,12 +144,17 @@ class CompilerUI(tk.Tk):
 
         
         try:
+            command = [self.compiler_path, src]
             result = subprocess.run(
-                [self.compiler_path, src],
-                cwd=self.project_root,
-                capture_output=True,
-                text=True
-            )
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                encoding="utf-8",
+                errors="replace"
+)
+            stdout = result.stdout or ""    # ensures stdout is never None
+            stderr = result.stderr or ""    # ensures stderr is never None
+
         except Exception as e:
             messagebox.showerror("Run failed", str(e))
             self.status.set("Run failed")
