@@ -1,7 +1,7 @@
-int x = 5 + 3;
-let y = x * 2;
+say x = 5 + 3;
+say y = x * 2;
 if (y > 10) {
-    print(y);
+    show(y);
 
 }
 

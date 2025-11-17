@@ -21,14 +21,11 @@ Token currentToken() {
     }
 }
 
-
 void nextToken() {
     if (currentIndex < (int)tokens.size()) {
         currentIndex++;
     }
 }
-
-
 
 bool isIdentifier(const Token &t) {
     return t.type == IDENTIFIER;
@@ -46,18 +43,15 @@ bool isKeyword(const Token &t, const string &word) {
     return t.type == KEYWORD && t.value == word;
 }
 
-
 void error(const string &msg) {
     cout << "[Syntax Error] " << msg << endl;
 }
-
 
 bool parseExpression();
 
 
 bool parseExpression() {
     Token t = currentToken();
-
 
     if (t.value == "(") {
         nextToken();
@@ -66,9 +60,8 @@ bool parseExpression() {
             error("Missing closing parenthesis");
             return false;
         }
-        nextToken(); 
+        nextToken();
     }
-
     else if (isIdentifier(t) || isNumber(t)) {
         nextToken();
     }
@@ -76,7 +69,6 @@ bool parseExpression() {
         error("Invalid operand in expression");
         return false;
     }
-
 
     if (isOperator(currentToken())) {
         nextToken();
@@ -108,10 +100,9 @@ bool parseAssignment() {
         return false;
     }
 
-    nextToken(); 
+    nextToken();
     return true;
 }
-
 
 bool parseDeclaration() {
     nextToken(); 
@@ -121,42 +112,43 @@ bool parseDeclaration() {
 
 bool parsePrint() {
     nextToken();
+
     if (currentToken().value != "(") {
-        error("Expected '(' after print");
+        error("Expected '(' after show");
         return false;
     }
 
-    nextToken(); 
+    nextToken();
     if (!isIdentifier(currentToken())) {
-        error("Expected identifier inside print()");
+        error("Expected identifier inside show()");
         return false;
     }
 
     nextToken();
     if (currentToken().value != ")") {
-        error("Expected ')' after identifier in print()");
+        error("Expected ')' after identifier in show()");
         return false;
     }
 
     nextToken();
     if (currentToken().value != ";") {
-        error("Missing ';' after print statement");
+        error("Missing ';' after show statement");
         return false;
     }
 
-    nextToken(); 
+    nextToken();
     return true;
 }
 
 
 bool parseIf() {
-    nextToken(); 
+    nextToken();
     if (currentToken().value != "(") {
         error("Expected '(' after if");
         return false;
     }
 
-    nextToken(); 
+    nextToken();
     if (!parseExpression()) return false;
 
     if (currentToken().value != ")") {
@@ -164,19 +156,21 @@ bool parseIf() {
         return false;
     }
 
-    nextToken(); 
+    nextToken();
     if (currentToken().value != "{") {
         error("Expected '{' to start if block");
         return false;
     }
 
-    nextToken(); 
+    nextToken();
     while (currentToken().value != "}" && currentToken().type != UNKNOWN) {
-        if (isKeyword(currentToken(), "let")) {
+        if (isKeyword(currentToken(), "say")) {
             if (!parseDeclaration()) return false;
-        } else if (isKeyword(currentToken(), "print")) {
+        } 
+        else if (isKeyword(currentToken(), "show")) {
             if (!parsePrint()) return false;
-        } else {
+        } 
+        else {
             error("Invalid statement inside if block");
             return false;
         }
@@ -187,7 +181,7 @@ bool parseIf() {
         return false;
     }
 
-    nextToken(); // consume '}'
+    nextToken(); 
     return true;
 }
 
@@ -200,18 +194,18 @@ bool parseProgram() {
     while (currentIndex < (int)tokens.size()) {
         Token t = currentToken();
 
-        if (isKeyword(t, "let")) {
+        if (isKeyword(t, "say")) {
             if (!parseDeclaration()) return false;
-        } 
+        }
         else if (isKeyword(t, "if")) {
             if (!parseIf()) return false;
-        } 
-        else if (isKeyword(t, "print")) {
+        }
+        else if (isKeyword(t, "show")) {
             if (!parsePrint()) return false;
-        } 
+        }
         else if (t.type == UNKNOWN) {
             break;
-        } 
+        }
         else {
             error("Unexpected token: " + t.value);
             return false;

@@ -10,9 +10,6 @@ APP_TITLE = "DikLang Compiler UI"
 TABS = ["Tokens", "Parser", "Semantic", "IR", "Optimized", "Emitted", "Errors", "Full Log"]
 
 def find_compiler():
-    """
-    Resolve path to compiler.exe assuming this UI lives in CustomCompiler/ui/gui.py
-    """
     here = os.path.abspath(os.path.dirname(__file__))
     root = os.path.abspath(os.path.join(here, ".."))
     exe = "compiler.exe" if os.name == "nt" else "compiler"
@@ -20,48 +17,46 @@ def find_compiler():
     return path, root
 
 def parse_output(stdout: str, stderr: str):
-    """
-    Split compiler output into sections for tabs.
-    We detect sections by the headings your compiler already prints.
-    Robust to minor message changes.
-    """
+    stdout = stdout or ""
+    stderr = stderr or ""
+
     sections = {k: [] for k in TABS}
 
     lines = stdout.splitlines()
     current = "Full Log"
+
     for raw in lines:
         line = raw.rstrip()
         sections["Full Log"].append(line)
 
-        
-        if re.search(r"^TOKENS GENERATED", line):
-            current = "Tokens";  continue
-        if re.search(r"^Generated Intermediate Code|^Generating Intermediate Code", line):
-            current = "IR";      continue
-        if re.search(r"^Final Optimized Intermediate Code|^Optimized Intermediate Code|^Optimization completed", line):
+        if line.startswith("TOKENS GENERATED"):
+            current = "Tokens"; continue
 
-            if "Final Optimized" in line:
-                current = "Optimized"
-            continue
-        if re.search(r"^Emitted Target-like Code", line):
+        if line.startswith("Generating Intermediate Code") or \
+           line.startswith("Generated Intermediate Code"):
+            current = "IR"; continue
+
+        if "Optimized Intermediate Code" in line or "Optimization completed" in line:
+            current = "Optimized"; continue
+
+        if "Emitted Target-like Code" in line:
             current = "Emitted"; continue
-        if re.search(r"Parsing", line):
-            sections["Parser"].append(line);  continue
-        if re.search(r"Semantic", line):
+
+        if "Parsing" in line:
+            sections["Parser"].append(line); continue
+
+        if "Semantic" in line:
             sections["Semantic"].append(line); continue
 
-
         if line.strip().startswith("<") and line.strip().endswith(">"):
-            sections["Tokens"].append(line)
-            continue
-
+            sections["Tokens"].append(line); continue
 
         if current in ("IR", "Optimized", "Emitted"):
-            if line.strip() and not line.endswith(":"):
+            if line.strip():
                 sections[current].append(line)
             continue
 
-
+    # Collect errors
     for src in (stdout, stderr):
         for errline in src.splitlines():
             if any(key in errline for key in ("[Syntax Error]", "[Semantic Error]", "Error:", "fatal", "undefined")):
@@ -76,9 +71,7 @@ class CompilerUI(tk.Tk):
         self.geometry("980x650")
         self.minsize(900, 560)
 
-
         self.compiler_path, self.project_root = find_compiler()
-
 
         top = ttk.Frame(self, padding=(8, 8))
         top.pack(fill=tk.X)
@@ -91,7 +84,6 @@ class CompilerUI(tk.Tk):
         ttk.Button(top, text="Compile", style="Accent.TButton", command=self.on_compile).pack(side=tk.LEFT, padx=8)
         ttk.Button(top, text="Save Log", command=self.on_save_log).pack(side=tk.LEFT)
 
-
         self.nb = ttk.Notebook(self)
         self.nb.pack(fill=tk.BOTH, expand=True, padx=8, pady=8)
 
@@ -103,10 +95,8 @@ class CompilerUI(tk.Tk):
             txt.pack(fill=tk.BOTH, expand=True)
             self.text_widgets[name] = txt
 
- 
         self.status = tk.StringVar(value=f"Compiler: {self.compiler_path}")
         ttk.Label(self, textvariable=self.status, anchor="w", padding=(8,4)).pack(fill=tk.X, side=tk.BOTTOM)
-
 
         style = ttk.Style()
         try:
@@ -136,13 +126,11 @@ class CompilerUI(tk.Tk):
             messagebox.showerror("File missing", f"Cannot find:\n{src}")
             return
 
-       
         for t in TABS:
             self.text_widgets[t].delete("1.0", tk.END)
 
         self.status.set("Compiling…")
 
-        
         try:
             command = [self.compiler_path, src]
             result = subprocess.run(
@@ -151,10 +139,7 @@ class CompilerUI(tk.Tk):
                 stderr=subprocess.PIPE,
                 encoding="utf-8",
                 errors="replace"
-)
-            stdout = result.stdout or ""    # ensures stdout is never None
-            stderr = result.stderr or ""    # ensures stderr is never None
-
+            )
         except Exception as e:
             messagebox.showerror("Run failed", str(e))
             self.status.set("Run failed")
@@ -162,10 +147,8 @@ class CompilerUI(tk.Tk):
 
         sections = parse_output(result.stdout, result.stderr)
 
-        # Fill tabs
         for name, text in sections.items():
             self.text_widgets[name].insert(tk.END, text or "(no output)")
-
 
         if sections["Errors"]:
             self.nb.select(self.nb.tabs()[TABS.index("Errors")])

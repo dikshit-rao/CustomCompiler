@@ -4,7 +4,10 @@
 
 vector<Token> tokenize(const string& code) {
     vector<Token> tokens;
-    unordered_set<string> keywords = {"let", "if", "print"};
+
+    // UPDATED KEYWORDS
+    unordered_set<string> keywords = {"say", "if", "show"};
+
     unordered_set<char> operators = {'+', '-', '*', '/', '=', '<', '>'};
     unordered_set<char> separators = {'(', ')', '{', '}', ';', ','};
 
@@ -18,11 +21,13 @@ vector<Token> tokenize(const string& code) {
             continue;
         }
 
+        // Identifiers or keywords
         if (isalpha(code[i])) {
             string word;
             while (i < code.size() && (isalnum(code[i]) || code[i] == '_')) {
                 word += code[i++];
             }
+
             if (keywords.count(word))
                 tokens.push_back({KEYWORD, word});
             else
@@ -38,21 +43,21 @@ vector<Token> tokenize(const string& code) {
             tokens.push_back({NUMBER, num});
         }
 
-
+        // Operators
         else if (operators.count(code[i])) {
             string op(1, code[i]);
             tokens.push_back({OPERATOR, op});
             i++;
         }
 
-
+        // Separators
         else if (separators.count(code[i])) {
             string sep(1, code[i]);
             tokens.push_back({SEPARATOR, sep});
             i++;
         }
 
-
+        // Unknown character
         else {
             string unk(1, code[i]);
             tokens.push_back({UNKNOWN, unk});

@@ -18,8 +18,8 @@ bool performSemanticAnalysis() {
     for (size_t i = 0; i < tokens.size(); i++) {
         Token t = tokens[i];
 
-        // Handle declarations
-        if (t.type == KEYWORD && t.value == "let") {
+        // Handle declarations: say x = ...
+        if (t.type == KEYWORD && t.value == "say") {
             if (i + 1 < tokens.size() && tokens[i + 1].type == IDENTIFIER) {
                 string var = tokens[i + 1].value;
 
@@ -33,12 +33,14 @@ bool performSemanticAnalysis() {
             }
         }
 
-        // Handle identifier usages (not after 'let')
+        // Handle identifier usages (ignore immediately after 'say')
         if (t.type == IDENTIFIER) {
-            if (i > 0 && tokens[i - 1].value == "let") continue; // skip declaration
+            // Skip the identifier that appears in the declaration "say x"
+            if (i > 0 && tokens[i - 1].value == "say") continue;
+
             if (!declaredVars.count(t.value)) {
-                cout << "[Semantic Error] Variable '" << t.value << "' used before declaration." << endl;
-                success = false;
+               cout << "[Semantic Error] Variable '" << t.value << "' used before declaration." << endl;
+               success = false;
             }
         }
     }

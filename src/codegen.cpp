@@ -16,18 +16,19 @@ void CodeGenerator::generate(const vector<Token>& tokens) {
     for (size_t i = 0; i < tokens.size(); ++i) {
         const Token& t = tokens[i];
 
-        // Declaration: let a = <expr>;
-        if (t.type == KEYWORD && t.value == "let") {
+        // Declaration: say a = <expr>;
+        if (t.type == KEYWORD && t.value == "say") {
             string var = tokens[i + 1].value;
             string next = tokens[i + 3].value;
 
+            // say a = 5;
             if (tokens[i + 3].type == IDENTIFIER || tokens[i + 3].type == NUMBER) {
                 string temp = newTemp();
                 code.push_back(temp + " = " + next);
                 code.push_back(var + " = " + temp);
             }
 
-            // Handle simple operations like: let b = a + 5;
+            // say b = a + 5;
             if (tokens[i + 4].type == OPERATOR) {
                 string left = tokens[i + 3].value;
                 string op = tokens[i + 4].value;
@@ -56,10 +57,10 @@ void CodeGenerator::generate(const vector<Token>& tokens) {
             }
         }
 
-        // Print: print(a);
-        if (t.type == KEYWORD && t.value == "print") {
+        // Print: show(a);
+        if (t.type == KEYWORD && t.value == "show") {
             string var = tokens[i + 2].value;
-            code.push_back("PRINT " + var);
+            code.push_back("SHOW " + var);
         }
     }
 }
